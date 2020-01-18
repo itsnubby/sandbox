@@ -18,8 +18,68 @@ except ImportError:
 
 # Global declarations.
 DEFAULTS = {
-    'format': 'mp4',
+    'format': {
+        'video': 'mp4',
+        'image': 'png'
+        },
+    'resolutions': {
+        '1080p': {
+            'width': 1920,
+            'height': 1080
+            }
+        }
     }
+
+def _get_time_now(time_format='epoch'):
+  """
+  Thanks Jon.  (;
+  :input time_format: ['utc', 'epoch']
+  """
+  if time_format == 'utc':
+    return datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S%f")
+  elif time_format == 'epoch':
+    td = datetime.datetime.utcnow() - _EPOCH
+    return td.total_seconds()
+  else:
+    return _get_time_now(time_format='epoch')
+
+def _get_camera_indices():
+    """
+    Return a list of available camera numbers.
+    :output available_indices: [int]
+    """
+    index_max = 8
+    available_indices = []
+    for index in range(0,index_max,1):
+        cap = cv2.VideoCapture(index)
+        if cap and cap.isOpened():
+            available_indices.append(index)
+            cap.release()
+    return available_indices
+
+def _take_picture(camera_index, image_path='./'):
+    """
+    Capture an image using the desired camera.
+    :input camera_index: (int)
+    :input image_path: (str)
+    """
+    eye = cv2.VideoCapture(camera_index)
+    ret, frame = eye.read()
+
+    # Label TODO
+    label = 'shrooms'
+
+    # Wink a pic. (;
+    wink_timestamp = _get_time_now('utc')
+    wink_name = '.'.join([
+        ('-'.join([
+            image_path+wink_timestamp,
+            str(camera_index),
+            label])),
+        DEFAULTS['format']['image']])
+    cv2.imwrite(wink_name, frame)
+    print('Pic snapped at : '+wink_name)
+    eye.release()
 
 class Eyeball(Device):
   """
@@ -95,5 +155,7 @@ def sift():
   return args
 
 if __name__ == "__main__":
-  args = sift()
-  see(args)
+    args = sift()
+    #see(args)
+    available_camera_indices = _get_camera_indices()
+    _take_picture(max(available_camera_indices))
