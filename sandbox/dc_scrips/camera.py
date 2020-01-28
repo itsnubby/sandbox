@@ -271,7 +271,7 @@ def test_camera():
   # Test the camera.
   cam = Camera(device_address)
   cam.set_up()
-  cam.set_data_path(pic_dir)
+  cam.set_data_path(base_dc_dir)
   cam.take_picture()
   time.sleep(5)
   cam.take_picture()
