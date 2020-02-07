@@ -94,7 +94,7 @@ class Camera(object):
     :out: info {dict}
     """
     info = {
-        'serial_number': '1',
+        'serial_number': '0',
         'device_type': 'usb_camera',
         'image_format': 'png',
         'device_address': self.device_address,
@@ -258,6 +258,23 @@ def _get_available_camera_indices():
       available_indices.append(index)
     cam.release()
   return available_indices
+
+def find_available_cameras(scope='all'):
+    """
+    Hunt for any available cameras within a defined scope.
+    :in: scope (str) [all, local, network]
+    :out: available_cameras [Camera]
+    """
+    available_devs = []
+    scopes = ['all', 'local', 'network']
+    if not scope in scopes:
+        raise IOError
+
+    # Find each available camera.
+    available_camera_indices = _get_available_camera_indices()
+    for device_address in available_camera_indices:
+        # Test the camera.
+        cam = Camera(device_address)
 
 def test_camera():
   # Set up.
